@@ -1,0 +1,40 @@
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// مدل کاربر
+model User {
+  id              String   @id @default(cuid())
+  email           String   @unique
+  phone           String?  @unique
+  name            String?
+  password        String
+  isEmailVerified Boolean  @default(false)
+  isPhoneVerified Boolean  @default(false)
+  lastLogin       DateTime?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // ارتباط با جدول پذیرش قوانین
+  consents TermsConsent[]
+}
+
+// مدل برای ذخیره تاریخچه پذیرش قوانین توسط کاربر
+model TermsConsent {
+  id        String   @id @default(cuid())
+  version   String // نسخه قوانینی که پذیرفته شده
+  acceptedAt DateTime @default(now())
+  userId    String
+  
+  // تعریف ارتباط با کاربر
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // هر کاربر فقط یک بار میتواند هر نسخه را بپذیرد
+  @@unique([userId, version])
+}
