@@ -2,28 +2,24 @@ import { z } from "zod";
 
 export const registerSchema = z.object({
   body: z.object({
-    email: z
-      .string()
-      .min(1, "Email is required") // Direct message string is also cleaner here
-      .email("Not a valid email")
-      .refine((e) => e === "abcd@fg.com", "This email is not in our database"),
+    email: z.string().min(1, "ایمیل الزامی است").email("ایمیل معتبر نیست"), // This is correct, it just checks format.
 
-    name: z.string().min(2, "Name must be at least 2 characters long"),
+    name: z.string().min(2, "نام باید حداقل ۲ کاراکتر باشد"),
 
-    // Updated .regex() calls with direct string messages
     password: z
       .string()
-      .min(8, "Password must be at least 8 characters long")
-      .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
-      .regex(/[a-z]/, "Password must contain at least one lowercase letter")
-      .regex(/[0-9]/, "Password must contain at least one number")
-      .regex(/[^A-Za-z0-9]/, "Password must contain at least one symbol"),
+      .min(8, "رمز عبور باید حداقل ۸ کاراکتر باشد")
+      .regex(/[A-Z]/, "رمز عبور باید شامل حداقل یک حرف بزرگ باشد")
+      .regex(/[a-z]/, "رمز عبور باید شامل حداقل یک حرف کوچک باشد")
+      .regex(/[0-9]/, "رمز عبور باید شامل حداقل یک عدد باشد")
+      .regex(/[^A-Za-z0-9]/, "رمز عبور باید شامل حداقل یک کاراکتر خاص باشد"),
   }),
 });
 
+// The login schema is where you might check if a user exists later on.
 export const loginSchema = z.object({
   body: z.object({
-    email: z.string().min(1, "Email is required").email("Not a valid email"),
-    password: z.string().min(1, "Password is required"),
+    email: z.string().min(1, "ایمیل الزامی است").email("ایمیل معتبر نیست"),
+    password: z.string().min(1, "رمز عبور الزامی است"),
   }),
 });
