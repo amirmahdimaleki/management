@@ -1,0 +1,18 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #3b82f6; /* A calmer blue */
+  --color-secondary: #64748b;
+  --color-accent: #14b8a6; /* Teal for accents */
+  --color-background: #0f172a; /* A deep navy blue */
+  --color-surface: #1e293b; /* For cards and surfaces */
+  --color-text: #e2e8f0;
+  --color-text-dim: #94a3b8; /* For secondary text */
+
+  --font-sans: "Vazirmatn", system-ui, sans-serif;
+}
+
+body {
+  direction: rtl;
+  background-color: var(--color-background);
+}

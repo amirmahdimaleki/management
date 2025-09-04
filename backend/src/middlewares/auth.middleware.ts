@@ -24,15 +24,17 @@ export const protect = async (req: AuthRequest, res: Response, next: NextFunctio
   }
 
   try {
-    const decoded = jwt.verify(token, JWT_SECRET) as { id: string };
+    const decoded = jwt.verify(token, JWT_SECRET) as { id: string; sessionVersion: number };
 
     const user = await prisma.user.findUnique({
       where: { id: decoded.id },
+      // **The Fix:** Add `sessionVersion` to the select clause.
       select: {
         id: true,
         email: true,
         name: true,
         phone: true,
+        sessionVersion: true, // <-- This line was missing
         isEmailVerified: true,
         isPhoneVerified: true,
         lastLogin: true,
@@ -43,6 +45,11 @@ export const protect = async (req: AuthRequest, res: Response, next: NextFunctio
 
     if (!user) {
       return next(new ApiError(401, "Not authorized, user not found"));
+    }
+
+    // Now this comparison will work correctly.
+    if (user.sessionVersion !== decoded.sessionVersion) {
+      return next(new ApiError(401, "Session has expired, please log in again"));
     }
 
     req.user = user;

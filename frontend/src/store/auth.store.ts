@@ -2,28 +2,30 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
 interface AuthState {
-  token: string | null;
   isAuthenticated: boolean;
+  needsConsent: boolean;
   setToken: (token: string) => void;
+  setNeedsConsent: (needs: boolean) => void;
   logout: () => void;
 }
 
 export const useAuthStore = create<AuthState>()(
   persist(
     (set) => ({
-      token: null,
       isAuthenticated: false,
+      needsConsent: false,
       setToken: (token: string) => {
         localStorage.setItem("authToken", token);
-        set({ token, isAuthenticated: true });
+        set({ isAuthenticated: true });
       },
+      setNeedsConsent: (needs: boolean) => set({ needsConsent: needs }),
       logout: () => {
         localStorage.removeItem("authToken");
-        set({ token: null, isAuthenticated: false });
+        set({ isAuthenticated: false, needsConsent: false });
       },
     }),
     {
-      name: "auth-storage", // Name for the localStorage item
+      name: "auth-storage",
     }
   )
 );

@@ -1,26 +1,58 @@
-# version: "3.8"
+version: "3.8"
 
 services:
-  # سرویس دیتابیس PostgreSQL
+  # Backend Application Service
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: user_profile_backend
+    restart: always
+    ports:
+      - "3000:3000"
+    depends_on:
+      - postgres_db
+      - redis_cache
+    environment:
+      # Pass environment variables from a .env file in the backend folder
+      - DATABASE_URL=${DATABASE_URL}
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_EXPIRES_IN=${JWT_EXPIRES_IN}
+      - REDIS_HOST=redis_cache # Use service name for inter-container communication
+      - REDIS_PORT=6379
+      - PORT=3000
+    env_file:
+      - ./backend/.env
+
+  # Frontend Application Service
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: user_profile_frontend
+    restart: always
+    ports:
+      - "8080:80" # Map host port 8080 to container port 80
+    depends_on:
+      - backend
+
+  # Database Service
   postgres_db:
     image: postgres:15-alpine
     container_name: user_profile_db
     restart: always
     environment:
-      POSTGRES_USER: your_db_user
-      POSTGRES_PASSWORD: your_db_password
-      POSTGRES_DB: user_profile_main
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U your_db_user -d user_profile_main"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+    env_file:
+      - ./backend/.env # Reuse .env for db credentials
 
-  # سرویس Redis برای صف و Rate Limiting
+  # Redis Service
   redis_cache:
     image: redis:7-alpine
     container_name: user_profile_redis
@@ -29,11 +61,6 @@ services:
       - "6379:6379"
     volumes:
       - redis_data:/data
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
 
 volumes:
   postgres_data:

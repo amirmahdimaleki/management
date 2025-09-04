@@ -39,10 +39,11 @@ const validatedExpiresIn: number | StringValue = getValidatedExpiresIn(JWT_EXPIR
  * @param user - The user object, containing id and email.
  * @returns A signed JWT string.
  */
-export const generateToken = (user: Pick<User, "id" | "email">): string => {
+export const generateToken = (user: Pick<User, "id" | "email" | "sessionVersion">): string => {
   const payload = {
     id: user.id,
     email: user.email,
+    sessionVersion: user.sessionVersion, // <-- Add session version to token payload
   };
 
   const options: SignOptions = {

@@ -1,33 +1,38 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import { Toaster } from "react-hot-toast";
 import ProtectedRoute from "./routes/ProtectedRoute.tsx";
 
-// Import Pages
-// ... other imports
 import LandingPage from "./pages/LandingPage";
 import LoginPage from "./pages/Login";
 import RegisterPage from "./pages/Register";
 import ProfilePage from "./pages/Profile";
+import TermsConsentModal from "./components/TermsConsentModal";
 
 function App() {
   return (
-    <Router>
-      <div className="min-h-screen bg-background text-text font-sans">
+    <>
+      <Toaster
+        position="bottom-center"
+        toastOptions={{
+          style: {
+            background: "#334155",
+            color: "#e2e8f0",
+          },
+        }}
+      />
+      <Router>
+        <TermsConsentModal />
         <Routes>
-          {/* Public Routes */}
           <Route path="/" element={<LandingPage />} />
-          {/* <Route path="/" element={<Navigate to="/login" />} /> */}
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
-
-          {/* Protected Routes */}
           <Route element={<ProtectedRoute />}>
             <Route path="/profile" element={<ProfilePage />} />
           </Route>
-
-          {/* ... other routes */}
+          <Route path="*" element={<Navigate to="/" />} />
         </Routes>
-      </div>
-    </Router>
+      </Router>
+    </>
   );
 }
 
